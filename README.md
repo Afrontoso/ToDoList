@@ -2,7 +2,7 @@
 
 Este é um projeto de uma aplicação de lista de tarefas (To-Do List) desenvolvida como parte do processo de trainee da empresa júnior de Engenharia de Software, Orc'estra. A aplicação foi construída utilizando React para criar uma interface de usuário interativa e eficiente para o gerenciamento de tarefas diárias.
 
-**[Acesse a versão ao vivo aqui!](to-do-afrontoso.vercel.app)**
+**[Acesse a versão ao vivo aqui!](https://to-do-afrontoso.vercel.app/)**
 
 ![Demonstração do To-Do List](img/ToDoList.png)
 
