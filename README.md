@@ -1,6 +1,6 @@
 # To-Do List com React e Supabase
 
-![Project Demo GIF](https://placehold.co/800x400/1e293b/ffffff?text=Adicione+aqui+um+GIF+do+seu+projeto!)
+![Project Demo GIF](./img/Animação.gif)
 
 <p align="center">
   <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React"/>
@@ -17,7 +17,7 @@ Este é um projeto de To-Do List completo, desenvolvido como um portfólio para 
 
 O projeto foi construído do zero, passando por uma refatoração completa de uma base de Create React App com `styled-components` para uma stack moderna com **Vite**, **TypeScript**, **Tailwind CSS** e **shadcn/ui**.
 
-🔗 **Veja a aplicação ao vivo:** [**LINK DO SEU DEPLOY NA CLOUDFLARE PAGES**](https://todolist-45a.pages.dev/)
+🔗 **Veja a aplicação ao vivo:**(https://todolist-45a.pages.dev/)
 
 ---
 
