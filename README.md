@@ -103,4 +103,4 @@ A aplicação estará disponível em `http://localhost:5173`.
 
 * **Email:** victor2lra@gmail.com
 * **LinkedIn:** [https://www.linkedin.com/in/seu-perfil/](https://www.linkedin.com/in/victorleandro/)
-* **GitHub:** [@seu-usuario](https://github.com/Afrontoso)
+* **GitHub:** [@Afrontoso](https://github.com/Afrontoso)
