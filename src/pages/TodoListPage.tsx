@@ -15,17 +15,24 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // Interface para definir a estrutura de uma tarefa
 interface Issue {
   id: number;
   title: string;
   is_complete: boolean;
-  user_id: string;
+  user_id?: string;
+}
+
+interface TodoListPageProps {
+  session: Session | null;
+  onSignOut: () => void;
 }
 
 // O componente agora recebe a sessão do usuário como propriedade
-export function TodoListPage({ session }: { session: Session }) {
+export function TodoListPage({ session, onSignOut }: TodoListPageProps) {
+  const isGuestMode = !session;
   const [loading, setLoading] = React.useState(true);
   const [issues, setIssues] = React.useState<Issue[]>([]);
   const [newIssue, setNewIssue] = React.useState('');
@@ -33,29 +40,45 @@ export function TodoListPage({ session }: { session: Session }) {
   const [editingIssue, setEditingIssue] = React.useState<Issue | null>(null);
   const [editingText, setEditingText] = React.useState('');
 
-  // Busca as tarefas do Supabase quando o componente é montado
-  React.useEffect(() => {
-    getTodos();
-  }, []);
+  const user = session?.user;
+  const userName = user?.user_metadata?.full_name || user?.email || "Visitante";
+  const avatarUrl = user?.user_metadata?.avatar_url;
 
-  const getTodos = async () => {
+  const getInitials = (name: string) => {
+    const names = name.split(' ');
+    if (names.length > 1) {
+      return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
+  React.useEffect(() => {
+    if (isGuestMode) {
+      const savedIssues = localStorage.getItem('@ToDoList:guestIssues');
+      if (savedIssues) {
+        setIssues(JSON.parse(savedIssues));
+      }
+      setLoading(false);
+    } else {
+      getTodosFromSupabase();
+    }
+  }, [isGuestMode]);
+
+  React.useEffect(() => {
+    if (isGuestMode) {
+      localStorage.setItem('@ToDoList:guestIssues', JSON.stringify(issues));
+    }
+  }, [issues, isGuestMode]);
+
+  const getTodosFromSupabase = async () => {
     try {
       setLoading(true);
-      const { user } = session;
-
-      const { data, error } = await supabase
-        .from('todos')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: true });
-
+      const { user } = session!;
+      const { data, error } = await supabase.from('todos').select('*').eq('user_id', user.id).order('created_at');
       if (error) throw error;
       if (data) setIssues(data);
-    } catch (error: any) {
-      alert(error.message);
-    } finally {
-      setLoading(false);
-    }
+    } catch (error: any) { alert(error.message); }
+    finally { setLoading(false); }
   };
 
   const handleAddIssue = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -65,71 +88,58 @@ export function TodoListPage({ session }: { session: Session }) {
       return;
     }
 
-    try {
-      const { user } = session;
-      const { data, error } = await supabase
-        .from('todos')
-        .insert({ title: newIssue, user_id: user.id })
-        .select()
-        .single();
-      
-      if (error) throw error;
-      if (data) setIssues([...issues, data]);
-      
-      setNewIssue('');
-      setInputError('');
-    } catch (error: any) {
-      alert(error.message);
+    if (isGuestMode) {
+      const newGuestIssue: Issue = { id: Date.now(), title: newIssue, is_complete: false };
+      setIssues([...issues, newGuestIssue]);
+    } else {
+      try {
+        const { user } = session!;
+        const { data, error } = await supabase.from('todos').insert({ title: newIssue, user_id: user.id }).select().single();
+        if (error) throw error;
+        if (data) setIssues([...issues, data]);
+      } catch (error: any) { alert(error.message); }
     }
+    setNewIssue('');
+    setInputError('');
   };
 
   const updateTodoStatus = async (id: number, is_complete: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('todos')
-        .update({ is_complete })
-        .eq('id', id);
-
-      if (error) throw error;
-      setIssues(
-        issues.map((issue) =>
-          issue.id === id ? { ...issue, is_complete } : issue
-        )
-      );
-    } catch (error: any) {
-      alert(error.message);
+    if (isGuestMode) {
+      setIssues(issues.map((issue) => issue.id === id ? { ...issue, is_complete } : issue));
+    } else {
+      try {
+        const { error } = await supabase.from('todos').update({ is_complete }).eq('id', id);
+        if (error) throw error;
+        setIssues(issues.map((issue) => issue.id === id ? { ...issue, is_complete } : issue));
+      } catch (error: any) { alert(error.message); }
     }
   };
 
   const handleSaveEdit = async () => {
     if (!editingIssue || !editingText.trim()) return;
 
-    try {
-      const { error } = await supabase
-        .from('todos')
-        .update({ title: editingText })
-        .eq('id', editingIssue.id);
-      
-      if (error) throw error;
-      setIssues(
-        issues.map((issue) =>
-          issue.id === editingIssue.id ? { ...issue, title: editingText } : issue
-        )
-      );
-      setEditingIssue(null);
-      setEditingText('');
-    } catch (error: any) {
-      alert(error.message);
+    if (isGuestMode) {
+      setIssues(issues.map((issue) => issue.id === editingIssue.id ? { ...issue, title: editingText } : issue));
+    } else {
+      try {
+        const { error } = await supabase.from('todos').update({ title: editingText }).eq('id', editingIssue.id);
+        if (error) throw error;
+        setIssues(issues.map((issue) => issue.id === editingIssue.id ? { ...issue, title: editingText } : issue));
+      } catch (error: any) { alert(error.message); }
     }
+    setEditingIssue(null);
+    setEditingText('');
   };
 
   const handleDeleteIssue = async (id: number) => {
-    try {
-      const { error } = await supabase.from('todos').delete().eq('id', id);
-      if (error) throw error;
+    if (isGuestMode) {
       setIssues(issues.filter((issue) => issue.id !== id));
-    } catch (error: any) {
-      alert(error.message);
+    } else {
+      try {
+        const { error } = await supabase.from('todos').delete().eq('id', id);
+        if (error) throw error;
+        setIssues(issues.filter((issue) => issue.id !== id));
+      } catch (error: any) { alert(error.message); }
     }
   };
 
@@ -145,12 +155,25 @@ export function TodoListPage({ session }: { session: Session }) {
     return <div className="min-h-screen w-full flex items-center justify-center">Carregando...</div>;
   }
 
-  return (
+    return (
     <div className="bg-background text-foreground min-h-screen w-full flex justify-center p-4 sm:p-8">
       <div className="w-full max-w-2xl">
         <div className="flex justify-between items-center mb-8">
             <h1 className="text-4xl sm:text-5xl font-bold">To-Do List</h1>
-            <Button variant="ghost" onClick={() => supabase.auth.signOut()}>Sair</Button>
+            <div className="flex items-center gap-4">
+              {!isGuestMode && (
+                <>
+                  <div className="text-right hidden sm:block">
+                    <p className="font-semibold text-sm">{userName}</p>
+                  </div>
+                  <Avatar>
+                    <AvatarImage src={avatarUrl} alt={userName} />
+                    <AvatarFallback>{getInitials(userName)}</AvatarFallback>
+                  </Avatar>
+                </>
+              )}
+              <Button variant="ghost" onClick={onSignOut}>Sair</Button>
+            </div>
         </div>
         
         <form onSubmit={handleAddIssue} className="flex gap-2 mb-2">

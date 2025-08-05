@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 
-export function Auth() {
+export function Auth({ onEnterAsGuest }: { onEnterAsGuest: () => void }) {
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -48,7 +48,7 @@ export function Auth() {
     await supabase.auth.signInWithOAuth({ provider: 'github' })
   }
 
-  return (
+return (
     <div className="min-h-screen w-full flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
@@ -88,7 +88,7 @@ export function Auth() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Ou continue com
+                Ou
               </span>
             </div>
           </div>
@@ -100,6 +100,9 @@ export function Auth() {
               GitHub
             </Button>
           </div>
+          <Button variant="link" className="w-full mt-4" onClick={onEnterAsGuest}>
+            Entrar como visitante
+          </Button>
         </CardContent>
       </Card>
     </div>
