@@ -159,7 +159,7 @@ export function TodoListPage({ session, onSignOut }: TodoListPageProps) {
     <div className="bg-background text-foreground min-h-screen w-full flex justify-center p-4 sm:p-8">
       <div className="w-full max-w-2xl">
         <div className="flex justify-between items-center mb-8">
-            <h1 className="text-4xl sm:text-5xl font-bold">To-Do List</h1>
+            <h1 className="text-4xl sm:text-5xl font-bold cursor-default">To-Do List</h1>
             <div className="flex items-center gap-4">
               {!isGuestMode && (
                 <>
@@ -193,12 +193,12 @@ export function TodoListPage({ session, onSignOut }: TodoListPageProps) {
 
         <div className="space-y-4 mt-8">
           {todos.map((issue) => (
-            <Card key={issue.id}>
-              <CardContent className="p-4 flex items-center justify-between gap-2">
+            <Card className="py-2" key={issue.id}>
+              <CardContent className="px-4 py-1 flex items-center justify-between gap-2">
                 <Button variant="ghost" size="icon" onClick={() => updateTodoStatus(issue.id, true)}>
                   <MdCheck className="h-6 w-6 text-emerald-600" />
                 </Button>
-                <p className="font-medium flex-1 mr-auto">{issue.title}</p>
+                <p className="font-medium flex-1 mr-auto text-xl ">{issue.title}</p>
                 <div className="flex gap-2">
                   <Button variant="warning" size="icon" onClick={() => startEditing(issue)}>
                     <MdEdit className="h-5 w-5" />
@@ -214,15 +214,15 @@ export function TodoListPage({ session, onSignOut }: TodoListPageProps) {
 
         {completedTodos.length > 0 && (
           <div className="mt-12 pt-8 border-t">
-            <h2 className="text-2xl font-bold text-center mb-6">Tarefas Concluídas</h2>
+            <h2 className="text-2xl font-bold text-center mb-6 cursor-default">Tarefas Concluídas</h2>
             <div className="space-y-4">
               {completedTodos.map((issue) => (
-                <Card key={issue.id} className="bg-muted/50">
-                  <CardContent className="p-4 flex items-center justify-between gap-2">
+                <Card key={issue.id} className="bg-muted/50 py-2">
+                  <CardContent className="px-4 py-1 flex items-center justify-between gap-2">
                     <Button variant="ghost" size="icon" onClick={() => updateTodoStatus(issue.id, false)}>
                       <MdOutlineRemoveDone className="h-6 w-6 text-muted-foreground" />
                     </Button>
-                    <p className="font-medium flex-1 mr-auto line-through text-muted-foreground">
+                    <p className="font-medium flex-1 mr-auto line-through text-muted-foreground text-xl">
                       {issue.title}
                     </p>
                     <div className="flex">
